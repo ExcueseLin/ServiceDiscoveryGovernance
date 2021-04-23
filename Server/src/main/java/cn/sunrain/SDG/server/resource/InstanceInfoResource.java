@@ -1,6 +1,6 @@
 package cn.sunrain.SDG.server.resource;
 
-import cn.sunrain.SDG.server.config.ServerConfigBean;
+import cn.sunrain.SDG.server.config.ServerConfig;
 import cn.sunrain.SDG.server.resource.registry.AbstractInstanceRegistry;
 import cn.sunrain.SDG.share.entity.InstanceInfo;
 import cn.sunrain.SDG.share.http.Response;
@@ -22,12 +22,12 @@ public class InstanceInfoResource {
     private static final Logger logger = LoggerFactory.getLogger(InstanceInfoResource.class);
 
 
-    private final ServerConfigBean serverConfig;
+    private final ServerConfig serverConfig;
     private final AbstractInstanceRegistry registry;
 
 
     @Autowired
-    public InstanceInfoResource(ServerConfigBean serverConfig ,
+    public InstanceInfoResource(ServerConfig serverConfig ,
                                AbstractInstanceRegistry instanceRegistry) {
         this.serverConfig = serverConfig;
         this.registry = instanceRegistry;

@@ -1,12 +1,12 @@
 package cn.sunrain.SDG.server.resource;
 
-import cn.sunrain.SDG.server.config.ServerConfigBean;
+import cn.sunrain.SDG.server.config.ServerConfig;
 import cn.sunrain.SDG.server.lease.Lease;
 import cn.sunrain.SDG.server.resource.registry.AbstractInstanceRegistry;
 import cn.sunrain.SDG.share.entity.Applications;
 import cn.sunrain.SDG.share.entity.InstanceInfo;
-import cn.sunrain.SDG.share.http.Response;
 import cn.sunrain.SDG.share.http.HttpNode;
+import cn.sunrain.SDG.share.http.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +33,13 @@ public class ApplicationsResource {
 
     private static final ConcurrentHashMap<String, Map<String, Lease<InstanceInfo>>> registry = AbstractInstanceRegistry.getRegistry();
 
-    private final ServerConfigBean serverConfig;
+    private final ServerConfig serverConfig;
     private final AbstractInstanceRegistry instanceRegistry;
 
 
     @Autowired
-    public ApplicationsResource(ServerConfigBean serverConfig ,
-                        AbstractInstanceRegistry instanceRegistry) {
+    public ApplicationsResource(ServerConfig serverConfig ,
+                                AbstractInstanceRegistry instanceRegistry) {
         this.serverConfig = serverConfig;
         this.instanceRegistry = instanceRegistry;
     }

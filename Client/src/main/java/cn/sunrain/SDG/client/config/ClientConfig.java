@@ -1,10 +1,31 @@
 package cn.sunrain.SDG.client.config;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static cn.sunrain.SDG.share.constants.SDGConstants.DEFAULT_PREFIX;
+
 /**
  * @author lin
  * @date 2021/3/4 13:22
  */
+@ConfigurationProperties(ClientConfig.PREFIX)
 public class ClientConfig {
+
+    public static final String PREFIX = "sdg.client";
+
+    /**
+     * Default Eureka URL.
+     */
+    public static final String DEFAULT_URL = "http://localhost:9001" + DEFAULT_PREFIX
+            + "/";
+
+    /**
+     * Default availability zone if none is resolved based on region.
+     */
+    public static final String DEFAULT_ZONE = "defaultZone";
 
     /** 实例是否在eureka服务器上注册自己的信息以供其他服务发现，默认为true  */
     private boolean registerWithEureka = true;
@@ -29,6 +50,17 @@ public class ClientConfig {
     /** 心跳执行器 (scheduler) 在续约过程中超时后的再次执行续约的最大延迟倍数。默认最大延迟倍数10 */
     private int heartbeatExecutorExponentialBackOffBound = 10;
 
+    /** 增量信息是否可以提供给客户端 。而应求助于获取完整的注册表信息 。 默认false */
+    private boolean disableDelta =  false;
+
+    private String serverUrls;
+
+    public String getServerUrls() {
+        return serverUrls;
+    }
+    public void setServerUrls(String serverUrls) {
+        this.serverUrls = serverUrls;
+    }
 
     public boolean shouldRegisterWithEureka() {
         return this.registerWithEureka;
@@ -95,6 +127,16 @@ public class ClientConfig {
 
     public void setHeartbeatExecutorExponentialBackOffBound(int heartbeatExecutorExponentialBackOffBound) {
         this.heartbeatExecutorExponentialBackOffBound = heartbeatExecutorExponentialBackOffBound;
+    }
+
+    public boolean shouldDisableDelta() {
+        return this.disableDelta;
+    }
+    public boolean isDisableDelta() {
+        return disableDelta;
+    }
+    public void setDisableDelta(boolean disableDelta) {
+        this.disableDelta = disableDelta;
     }
 
 }

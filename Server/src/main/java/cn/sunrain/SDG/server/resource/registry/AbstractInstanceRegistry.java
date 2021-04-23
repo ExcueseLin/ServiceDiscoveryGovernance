@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @date 2021/2/22 13:39
  */
 @Component
-public abstract class AbstractInstanceRegistry
+public  class AbstractInstanceRegistry
         implements InstanceRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractInstanceRegistry.class);
@@ -95,6 +95,11 @@ public abstract class AbstractInstanceRegistry
     public void openForTraffic(int count) {
         this.expectedNumberOfClientsSendingRenews = count;
         updateRenewsPerMinThreshold();
+    }
+
+    @Override
+    public void shutdown() {
+
     }
 
     @Override
