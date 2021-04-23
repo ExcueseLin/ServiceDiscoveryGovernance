@@ -126,11 +126,41 @@ public class InstanceInfo implements Serializable {
     }
 
 
+    /**
+     * 设置dirty标志，并返回isDirty事件的时间戳
+     * @return
+     */
+    public synchronized long setIsDirtyWithTime() {
+        setIsDirty();
+        return lastDirtyTimestamp;
+    }
+
+
+    /**
+     * 如果unsetDirtyTimestamp与lastDirtyTimestamp匹配，则取消设置脏标志。
+     * 如果lastDirtyTimestamp>unsetDirtyTimestamp，则无操作
+     * @param unsetDirtyTimestamp
+     */
+    public synchronized void unsetIsDirty(long unsetDirtyTimestamp) {
+        if (lastDirtyTimestamp <= unsetDirtyTimestamp) {
+            isInstanceInfoDirty = false;
+        } else {
+        }
+    }
+
+    public synchronized void setIsDirty() {
+        isInstanceInfoDirty = true;
+        lastDirtyTimestamp = System.currentTimeMillis();
+    }
+
     public enum ActionType {
         ADDED, // Added in the discovery server
         MODIFIED, // Changed in the discovery server
         DELETED
         // Deleted from the discovery server
     }
+
+
+
 
 }

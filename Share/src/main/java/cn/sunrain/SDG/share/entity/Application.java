@@ -78,7 +78,7 @@ public class Application implements Serializable {
     /**
      * 删除一个实例
      */
-    private void removeInstance(InstanceInfo i) {
+    public void removeInstance(InstanceInfo i) {
         instancesMap.remove(i.getId());
         synchronized (instances) {
             instances.remove(i);
