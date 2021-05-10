@@ -2,10 +2,7 @@ package cn.sunrain.SDG.share.entity;
 
 import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.*;
@@ -21,30 +18,38 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *   =  Apps <Name , < Id, InstanceInfo>...>
  * @author Lin
  */
-
+@Setter
 public class Applications implements Serializable {
 
     /**
      * 包含的所有Application应用们。使用AbstractQueue装载，
      * 实际是个ConcurrentLinkedQueue队列
-     * （特点：FIFO）*/
+     * （特点：FIFO）
+     */
+    @JSONField(name = "applications")
     private final AbstractQueue<Application> applications;
 
-    /** map缓存。key是应用名，value是应用实例本身。 */
+    /**
+     * map缓存。key是应用名，value是应用实例本身。
+     */
+    @JSONField(name = "appNameApplicationMap")
     private final Map<String, Application> appNameApplicationMap;
 
-    public Applications(){
+    public Applications() {
         this.applications = new ConcurrentLinkedQueue<Application>();
         this.appNameApplicationMap = new ConcurrentHashMap<String, Application>();
     }
 
 
     @JSONCreator
-    public Applications( List<Application> registeredApplications) {
+    public Applications(@JSONField(name = "application") List<Application> registeredApplications) {
         this();
-        for (Application app : registeredApplications) {
-            this.addApplication(app);
+        if (registeredApplications!=null && registeredApplications.size() > 0){
+            for (Application app : registeredApplications) {
+                this.addApplication(app);
+            }
         }
+
     }
 
     /**
@@ -82,6 +87,10 @@ public class Applications implements Serializable {
 
 
     public int size() {
-        return  applications.stream().mapToInt(Application::size).sum();
+        return applications.stream().mapToInt(Application::size).sum();
     }
+
+
+
 }
+

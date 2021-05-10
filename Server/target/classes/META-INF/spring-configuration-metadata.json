@@ -1,0 +1,75 @@
+{
+  "groups": [
+    {
+      "name": "sunrain.sdg.server",
+      "type": "cn.sunrain.SDG.server.config.ServerConfig",
+      "sourceType": "cn.sunrain.SDG.server.config.ServerConfig"
+    }
+  ],
+  "properties": [
+    {
+      "name": "sunrain.sdg.server.delta-retention-timer-interval-in-ms",
+      "type": "java.lang.Long",
+      "description": "清理任务程序被唤醒的时间间隔，清理过期的增量信息，单位为毫秒",
+      "sourceType": "cn.sunrain.SDG.server.config.ServerConfig",
+      "defaultValue": 0
+    },
+    {
+      "name": "sunrain.sdg.server.disable-transparent-fallback-to-other-region",
+      "type": "java.lang.Boolean",
+      "description": "如果在远程区域本地没有实例运行，对于应用程序回退的旧行为是否被禁用， 默认为false",
+      "sourceType": "cn.sunrain.SDG.server.config.ServerConfig",
+      "defaultValue": false
+    },
+    {
+      "name": "sunrain.sdg.server.enable-self-preservation",
+      "type": "java.lang.Boolean",
+      "description": "是否开启自我保护",
+      "sourceType": "cn.sunrain.SDG.server.config.ServerConfig",
+      "defaultValue": true
+    },
+    {
+      "name": "sunrain.sdg.server.eviction-interval-timer-in-ms",
+      "type": "java.lang.Long",
+      "description": "过期实例应该启动并运行的时间间隔，单位为毫秒",
+      "sourceType": "cn.sunrain.SDG.server.config.ServerConfig",
+      "defaultValue": 0
+    },
+    {
+      "name": "sunrain.sdg.server.expected-client-renewal-interval-seconds",
+      "type": "java.lang.Integer",
+      "description": "客户端续约间隔",
+      "sourceType": "cn.sunrain.SDG.server.config.ServerConfig",
+      "defaultValue": 30
+    },
+    {
+      "name": "sunrain.sdg.server.renewal-percent-threshold",
+      "type": "java.lang.Double",
+      "description": "自我保护续约百分比阀值因子",
+      "sourceType": "cn.sunrain.SDG.server.config.ServerConfig",
+      "defaultValue": 0.85
+    },
+    {
+      "name": "sunrain.sdg.server.renewal-threshold-update-interval-ms",
+      "type": "java.lang.Integer",
+      "description": "自我保护阈值更新的时间间隔，单位为毫秒",
+      "sourceType": "cn.sunrain.SDG.server.config.ServerConfig",
+      "defaultValue": 0
+    },
+    {
+      "name": "sunrain.sdg.server.retention-time-in-m-s-in-delta-queue",
+      "type": "java.lang.Long",
+      "description": "客户端保持增量信息缓存的时间，从而保证不会丢失这些信息，单位为毫秒",
+      "sourceType": "cn.sunrain.SDG.server.config.ServerConfig",
+      "defaultValue": 0
+    },
+    {
+      "name": "sunrain.sdg.server.sync-when-timestamp-differs",
+      "type": "java.lang.Boolean",
+      "description": "当时间变化实例是否跟着同步，默认为true",
+      "sourceType": "cn.sunrain.SDG.server.config.ServerConfig",
+      "defaultValue": true
+    }
+  ],
+  "hints": []
+}

@@ -2,18 +2,23 @@ package cn.sunrain.SDG.client.discovery;
 
 import cn.sunrain.SDG.client.config.ClientConfig;
 import cn.sunrain.SDG.client.http.SDGHttpResponse;
+import cn.sunrain.SDG.client.http.SdgHttpclient;
 import cn.sunrain.SDG.share.entity.Application;
 import cn.sunrain.SDG.share.entity.Applications;
 import cn.sunrain.SDG.share.entity.InstanceInfo;
-import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.PreDestroy;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -41,6 +46,9 @@ public class DiscoveryClient implements Discovery {
     private final AtomicReference<String> serverUrls;
     private final AtomicReference<String[]> serverUrlsRef;
 
+    private final AtomicReference<String> remoteRegionsToFetch;
+    private final AtomicReference<String[]> remoteRegionsRef;
+
     // 定时任务的 线程池
     private final ScheduledExecutorService scheduler;
     // 心跳检查 线程池
@@ -56,10 +64,14 @@ public class DiscoveryClient implements Discovery {
 
     private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
-    // 服务初始化时间戳
-    private final long initTimestampMs;
 
-    DiscoveryClient(ClientConfig config,InstanceInfo instanceInfo) {
+
+    private SdgHttpclient sdgHttpclient;
+
+    public DiscoveryClient(ClientConfig config, InstanceInfo instanceInfo, RestTemplate restTemplate) {
+        // 服务初始化时间戳
+        long initTimestampMs;
+
         this.clientConfig = config;
 
         this.instanceInfo = instanceInfo;
@@ -69,8 +81,15 @@ public class DiscoveryClient implements Discovery {
         serverUrls = new AtomicReference<>(clientConfig.getServerUrls());
         serverUrlsRef = new AtomicReference<>(serverUrls.get() == null ? null : serverUrls.get().split(","));
 
-        fetchRegistryGeneration = new AtomicLong(0);
 
+        remoteRegionsToFetch = new AtomicReference<String>(clientConfig.getFetchRemoteRegionsRegistry());
+        remoteRegionsRef = new AtomicReference<>(remoteRegionsToFetch.get() == null ? null : remoteRegionsToFetch.get().split(","));
+
+
+        sdgHttpclient = new SdgHttpclient(restTemplate,serverUrlsRef.get());
+
+        fetchRegistryGeneration = new AtomicLong(0);
+        localRegionApps.set(new Applications());
 
         //判断客户端是否需要注册到服务中心中   shouldRegisterWithEureka
         //判断客户端是否需要获取服务中心的其它实例  shouldFetchRegistry
@@ -117,14 +136,6 @@ public class DiscoveryClient implements Discovery {
             throw new RuntimeException("Failed to initialize DiscoveryClient!", e);
         }
 
-        //服务发现
-        //如果需要拉去服务中心中的服务 那么初始化时 就拉取一次
-        //全局拉取基本就这一次！  后面都是增量拉取
-        if (clientConfig.shouldFetchRegistry() ) {
-            fetchRegistry(false);
-        }
-
-
         //服务注册
         //首先查看服务是否需要注册到注册中心中  然后查看是否需要在启动时注册！
         if (clientConfig.shouldRegisterWithEureka() && clientConfig.shouldEnforceRegistrationAtInit()) {
@@ -137,6 +148,16 @@ public class DiscoveryClient implements Discovery {
                 throw new IllegalStateException(th);
             }
         }
+
+
+        //服务发现
+        //如果需要拉去服务中心中的服务 那么初始化时 就拉取一次
+        //全局拉取基本就这一次！  后面都是增量拉取
+        if (clientConfig.shouldFetchRegistry() ) {
+            fetchRegistry(false);
+        }
+
+
 
         initScheduledTasks();
 
@@ -239,7 +260,7 @@ public class DiscoveryClient implements Discovery {
         logger.info("Getting all instance registry info from the eureka server");
 
         Applications apps = null;
-        SDGHttpResponse<Applications> httpResponse = eurekaTransport.queryClient.getApplications(serverUrlsRef.get())
+        SDGHttpResponse<Applications> httpResponse = sdgHttpclient.getApplications(remoteRegionsRef.get());
         if (httpResponse.getStatusCode() == Response.Status.OK.getStatusCode()) {
             apps = httpResponse.getEntity();
         }
@@ -266,7 +287,7 @@ public class DiscoveryClient implements Discovery {
         logger.info(PREFIX + "{}: registering service...", appPathIdentifier);
         SDGHttpResponse<Void> httpResponse;
         try {
-            httpResponse = eurekaTransport.registrationClient.register(instanceInfo);
+            httpResponse = sdgHttpclient.register(instanceInfo);
         } catch (Exception e) {
             logger.warn(PREFIX + "{} - registration failed {}", appPathIdentifier, e.getMessage(), e);
             throw e;
@@ -274,7 +295,7 @@ public class DiscoveryClient implements Discovery {
         if (logger.isInfoEnabled()) {
             logger.info(PREFIX + "{} - registration status: {}", appPathIdentifier, httpResponse.getStatusCode());
         }
-        return httpResponse.getStatusCode() == Response.Status.NO_CONTENT.getStatusCode();
+        return httpResponse.getStatusCode() == Response.Status.OK.getStatusCode();
     }
 
 
@@ -288,7 +309,7 @@ public class DiscoveryClient implements Discovery {
         long currentUpdateGeneration = fetchRegistryGeneration.get();
 
         Applications delta = null;
-        SDGHttpResponse<Applications> httpResponse = eurekaTransport.queryClient.getDelta(remoteRegionsRef.get());
+        SDGHttpResponse<Applications> httpResponse = sdgHttpclient.getDelta(remoteRegionsRef.get());
         if (httpResponse.getStatusCode() == Response.Status.OK.getStatusCode()) {
             delta = httpResponse.getEntity();
         }
@@ -300,13 +321,12 @@ public class DiscoveryClient implements Discovery {
             getAndStoreFullRegistry();
         } else if (fetchRegistryGeneration.compareAndSet(currentUpdateGeneration, currentUpdateGeneration + 1)) {
             logger.debug("Got delta update with apps hashcode ");
-            String reconcileHashCode = "";
             synchronized (Discovery.class){
                 updateDelta(delta);
             }
         } else {
             logger.warn("Not updating application delta as another thread is updating it already");
-            logger.debug("Ignoring delta update with apps hashcode {}, as another thread is updating it already", delta.getAppsHashCode());
+            logger.debug("Ignoring delta update  as another thread is updating it already");
         }
     }
 
@@ -330,7 +350,7 @@ public class DiscoveryClient implements Discovery {
                     if (existingApp == null) {
                         applications.addApplication(app);
                     }
-                    logger.debug("Added instance {} to the existing apps in region {}", instance.getId(), instanceRegion);
+                    logger.debug("Added instance {} to the existing apps in region ", instance.getId());
                     applications.getRegisteredApplications(instance.getAppName()).addInstance(instance);
                 }
                 //对修改的实例的处理
@@ -368,13 +388,6 @@ public class DiscoveryClient implements Discovery {
     }
 
 
-    public Applications getApplications() {
-        return localRegionApps.get();
-    }
-
-
-
-
 
     /**
      * The heartbeat task that renews the lease in the given intervals.
@@ -391,7 +404,7 @@ public class DiscoveryClient implements Discovery {
     boolean renew() {
         SDGHttpResponse<InstanceInfo> httpResponse;
         try {
-            httpResponse = eurekaTransport.registrationClient.sendHeartBeat(instanceInfo.getAppName(), instanceInfo.getId(), instanceInfo, null);
+            httpResponse = sdgHttpclient.sendHeartBeat(instanceInfo.getAppName(), instanceInfo.getId(), instanceInfo, null);
             logger.debug(PREFIX + "{} - Heartbeat status: {}", appPathIdentifier, httpResponse.getStatusCode());
             if (httpResponse.getStatusCode() == Response.Status.NOT_FOUND.getStatusCode()) {
                 logger.info(PREFIX + "{} - Re-registering apps/{}", appPathIdentifier, instanceInfo.getAppName());
@@ -433,4 +446,74 @@ public class DiscoveryClient implements Discovery {
     }
 
 
+
+    @Override
+    public Applications getApplications() {
+        return localRegionApps.get();
+    }
+
+    @Override
+    public Application getApplication(String appName) {
+        return getApplications().getRegisteredApplications(appName);
+    }
+
+    @Override
+    public List<InstanceInfo> getInstancesById(String id) {
+        List<InstanceInfo> instancesList = new ArrayList<InstanceInfo>();
+        for (Application app : this.getApplications()
+                .getRegisteredApplications()) {
+            InstanceInfo instanceInfo = app.getByInstanceId(id);
+            if (instanceInfo != null) {
+                instancesList.add(instanceInfo);
+            }
+        }
+        return instancesList;
+    }
+
+
+    @Override
+    public ClientConfig getEurekaClientConfig() {
+        return clientConfig;
+    }
+
+    @PreDestroy
+    @Override
+    public void shutdown() {
+        if (isShutdown.compareAndSet(false, true)) {
+            logger.info("Shutting down DiscoveryClient ...");
+
+            cancelScheduledTasks();
+            // If APPINFO was registered
+            if ( clientConfig.shouldRegisterWithEureka()
+                    && clientConfig.shouldUnregisterOnShutdown()) {
+                unregister();
+            }
+
+            logger.info("Completed shut down of DiscoveryClient");
+        }
+    }
+
+
+    private void cancelScheduledTasks() {
+        if (heartbeatExecutor != null) {
+            heartbeatExecutor.shutdownNow();
+        }
+        if (cacheRefreshExecutor != null) {
+            cacheRefreshExecutor.shutdownNow();
+        }
+        if (scheduler != null) {
+            scheduler.shutdownNow();
+        }
+    }
+
+    void unregister() {
+        // It can be null if shouldRegisterWithEureka == false
+        try {
+            logger.info("Unregistering ...");
+            SDGHttpResponse<Void> httpResponse = sdgHttpclient.cancel(instanceInfo.getAppName(), instanceInfo.getId());
+            logger.info(PREFIX + "{} - deregister  status: {}", appPathIdentifier, httpResponse.getStatusCode());
+        } catch (Exception e) {
+            logger.error(PREFIX + "{} - de-registration failed{}", appPathIdentifier, e.getMessage(), e);
+        }
+    }
 }

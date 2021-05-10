@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
@@ -67,6 +68,8 @@ public  class AbstractInstanceRegistry
     private Timer scheduleRenewalThresholdUpdateTimer = new Timer("ReplicaAwareInstanceRegistry - RenewalThresholdUpdater", true);
     private final AtomicReference<EvictionTask> evictionTaskRef = new AtomicReference<EvictionTask>();
 
+    /** 如果取消了10次服务剔除 则重新开始 */
+    private final AtomicInteger  evictionEnable = new AtomicInteger(3);
 
     private ServerConfig serverConfig;
 
@@ -78,6 +81,7 @@ public  class AbstractInstanceRegistry
         this.deltaRetentionTimer.schedule(getDeltaRetentionTask(),
                 serverConfig.getDeltaRetentionTimerIntervalInMs(),
                 serverConfig.getDeltaRetentionTimerIntervalInMs());
+        postInit();
     }
 
     protected void postInit() {
@@ -199,7 +203,7 @@ public  class AbstractInstanceRegistry
     @Override
     public boolean renew(String appName, String id, boolean isReplication) {
         try {
-            Map<String, Lease<InstanceInfo>> gMap = registry.get(appName);
+            Map<String, Lease<InstanceInfo>> gMap = registry.get(appName.trim());
             Lease<InstanceInfo> leaseToRenew = null;
             if (gMap != null) {
                 leaseToRenew = gMap.get(id);
@@ -232,11 +236,13 @@ public  class AbstractInstanceRegistry
     public void evict(long additionalLeaseMs) {
         logger.debug("Running the evict task");
 
-        if (!isLeaseExpirationEnabled()) {
+        //当开启了自我保护机制后 取消服务剔除的次数过多(默认15次) 则继续进行服务剔除！
+        if (!isLeaseExpirationEnabled() && evictionEnable.intValue() > 0) {
             logger.debug("DS: lease expiration is currently disabled.");
+            evictionEnable.decrementAndGet();
             return;
         }
-
+        evictionEnable.set(3);
         /*
          *首先收集所有过期的实例集合，然后以随机的顺序清除，
          *如果不这么做的话，当大批量清除时，还没等到自我保护起作用，
@@ -297,7 +303,8 @@ public  class AbstractInstanceRegistry
             return true;
         }
         //如果保护模式打开啦，则如果最后一分钟续约的数量大于计算的阈值，则允许，否则不允许清除
-        return numberOfRenewsPerMinThreshold > 0 && getNumOfRenewsInLastMin() > numberOfRenewsPerMinThreshold;
+        //开启保护模式代表只能在正常情况下才能进行服务剔除
+        return numberOfRenewsPerMinThreshold > 0 || getNumOfRenewsInLastMin() > numberOfRenewsPerMinThreshold;
     }
 
     @Override
@@ -411,6 +418,11 @@ public  class AbstractInstanceRegistry
             while (iter.hasNext()) {
                 Lease<InstanceInfo> lease = iter.next().getLeaseInfo();
                 InstanceInfo instanceInfo = lease.getHolder();
+                if (instanceInfo == null || instanceInfo.getId() == null){
+                    iter.remove();
+                    logger.warn("this detail instance is null ");
+                    continue;
+                }
                 logger.debug(
                         "The instance id {} is found with status {} and actiontype {}",
                         instanceInfo.getId(), instanceInfo.getStatus().name(), instanceInfo.getActionType().name());
@@ -422,7 +434,7 @@ public  class AbstractInstanceRegistry
                     apps.addApplication(app);
                 }
                 InstanceInfo instance = new InstanceInfo();
-                BeanUtils.copyProperties(instance,decorateInstanceInfo(lease));
+                BeanUtils.copyProperties(decorateInstanceInfo(lease),instance);
                 app.addInstance(instance);
             }
 

@@ -13,6 +13,7 @@ import java.io.Serializable;
 @Builder
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class InstanceInfo implements Serializable {
@@ -21,7 +22,7 @@ public class InstanceInfo implements Serializable {
      *  eureka.instance.instance-id
      *  = ${spring.cloud.client.ipAddress}:${spring.application.name}:${server.port}:@project.version@
      * （在eureka项目本身的配置是：eureka.instanceId = xxxxxxx） 这个只能是唯一的！ */
-    @JSONField(name = "instanceId",serialize = false)
+    @JSONField(name = "instanceId")
     private volatile String instanceId;
     /** 应用名
      * （同一应用可以有N多个实例） */
@@ -34,7 +35,7 @@ public class InstanceInfo implements Serializable {
 
     /** 实例端口号 */
     @JSONField(name = "port",serialize = false)
-    private volatile String port;
+    private volatile int port;
 
     /** 主机名 */
     @JSONField(name = "hostName")

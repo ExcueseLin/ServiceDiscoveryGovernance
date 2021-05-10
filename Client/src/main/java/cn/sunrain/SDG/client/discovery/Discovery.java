@@ -21,20 +21,7 @@ public interface Discovery {
 
     List<InstanceInfo> getInstancesById(String id);
 
-    public Applications getApplicationsForARegion(String region);
 
-
-    /**
-     * 获取所特定服务中心上的所有应用实例
-     * @param serviceUrl  服务中心地址
-     * @return
-     */
-    public Applications getApplications(String serviceUrl);
-
-    /**
-     * @return 以字符串形式显示此客户端可以访问的所有区域（本地+远程）
-     */
-    public Set<String> getAllKnownRegions();
 
 
     public void shutdown();

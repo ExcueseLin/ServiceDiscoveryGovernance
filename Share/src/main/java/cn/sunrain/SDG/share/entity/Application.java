@@ -2,6 +2,7 @@ package cn.sunrain.SDG.share.entity;
 
 import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.*;
@@ -13,15 +14,15 @@ import java.util.concurrent.atomic.AtomicReference;
  * 一个应用有多个实例InstanceInfo
  * @author lin
  */
-
+@Setter
 public class Application implements Serializable {
 
     /** 应用名称 （现设计为 instanceInfo中的应用名）*/
     @JSONField(name = "name")
-    private String name;
+    private String name = "UNKNOW";
 
     /**存储实例们的Set集合（自带去重，实例id相同代表同一实例）*/
-    @JSONField(name = "instance")
+    @JSONField(name = "instances")
     private final Set<InstanceInfo> instances;
 
     /** 缓存 key是实例id，value是对应的实例对象 */
@@ -42,11 +43,14 @@ public class Application implements Serializable {
      * 反序列化时通过此构造器来生成一个Application应用
      */
     @JSONCreator
-    public Application(String name, List<InstanceInfo> instances) {
-        this();
-        for (InstanceInfo instanceInfo : instances) {
-            addInstance(instanceInfo);
+    public Application(String name,@JSONField(name = "application") List<InstanceInfo> instances) {
+        this(name);
+        if (instances != null && instances.size() > 0){
+            for (InstanceInfo instanceInfo : instances) {
+                addInstance(instanceInfo);
+            }
         }
+
     }
 
     public String getName() {

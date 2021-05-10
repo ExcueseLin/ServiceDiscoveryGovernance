@@ -46,17 +46,11 @@ public class ApplicationsResource {
 
     /**
      *
-     * @param acceptHeader
-     * @param acceptEncoding
-     * @param request
      * @param regionsStr  分区，代表其他服务中心的地址
      * @return
      */
     @GetMapping()
-    public Response getContainers(@RequestParam(HttpNode.HEADER_ACCEPT) String acceptHeader,
-                                  @RequestParam(HttpNode.HEADER_ACCEPT_ENCODING) String acceptEncoding,
-                                  HttpServletRequest request,
-                                  @RequestParam("regions") String regionsStr) {
+    public Response getContainers(@RequestParam(name = "regions",required = false) String regionsStr) {
         boolean isRemoteRegionRequested = null != regionsStr && !regionsStr.isEmpty();
         String[] regions = null;
         if (isRemoteRegionRequested){
@@ -77,10 +71,7 @@ public class ApplicationsResource {
 
 
     @GetMapping("/delta")
-    public Response getContainerDifferential(@RequestParam(HttpNode.HEADER_ACCEPT) String acceptHeader,
-                                             @RequestParam(HttpNode.HEADER_ACCEPT_ENCODING) String acceptEncoding,
-                                             HttpServletRequest request,
-                                             @RequestParam("regions") String regionsStr) {
+    public Response getContainerDifferential( @RequestParam(name = "regions",required = false) String regionsStr) {
         boolean isRemoteRegionRequested = null != regionsStr && !regionsStr.isEmpty();
         String[] regions = null;
         if (isRemoteRegionRequested){

@@ -1,7 +1,6 @@
 package cn.sunrain.SDG.share.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.sun.xml.internal.ws.developer.Serialization;
 import lombok.*;
 
 import java.io.Serializable;
@@ -14,6 +13,7 @@ import java.io.Serializable;
 
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class LeaseInfo implements Serializable {
@@ -22,8 +22,10 @@ public class LeaseInfo implements Serializable {
     public static final int DEFAULT_LEASE_DURATION = 90;
 
     /** 续租间隔时间（多长时间续约一次），默认是30s。 */
+    @JSONField(name = "renewalIntervalInSecs")
     private int renewalIntervalInSecs = DEFAULT_LEASE_RENEWAL_INTERVAL;
     /**续约持续时间（过期时间），默认是90s。90s倒计时，期间没有收到续约就会执行对应动作 */
+    @JSONField(name = "durationInSecs")
     private int durationInSecs = DEFAULT_LEASE_DURATION;
 
     /** 租约的注册时间 */

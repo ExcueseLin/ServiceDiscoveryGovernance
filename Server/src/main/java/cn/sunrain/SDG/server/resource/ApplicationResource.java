@@ -61,8 +61,9 @@ public class ApplicationResource {
 
 
     @PostMapping("/add")
-    public Response addInstance(@RequestBody InstanceInfo info,
-                                @RequestHeader(HttpNode.HEADER_REPLICATION) String isReplication ){
+    public Response addInstance(@RequestBody InstanceInfo info
+                             //   @RequestHeader(HttpNode.HEADER_REPLICATION) String isReplication
+    ){
         if (isBlank(info.getId())){
             return new Response(Response.Status.NOT_FOUND,"Missing instanceId");
         }else if(isBlank(info.getAppName())){
@@ -72,9 +73,9 @@ public class ApplicationResource {
         }else if(isBlank(info.getHostName())){
             return new Response(Response.Status.NOT_FOUND,"Missing HostName");
         }
-        instanceRegistry.register(info,Lease.DEFAULT_DURATION_IN_SECS ,"true".equals(isReplication));
+        instanceRegistry.register(info,Lease.DEFAULT_DURATION_IN_SECS ,false);
         //状态204 向后兼容
-        return new Response(Response.Status.NO_CONTENT,"Register Success");
+        return new Response(Response.Status.OK,"Register Success");
     }
 
     private boolean isBlank(String str) {

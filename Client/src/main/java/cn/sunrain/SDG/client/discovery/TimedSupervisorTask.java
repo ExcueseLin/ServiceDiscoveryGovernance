@@ -15,7 +15,6 @@ public class TimedSupervisorTask extends TimerTask {
     private static final Logger logger = LoggerFactory.getLogger(TimedSupervisorTask.class);
 
 
-
     private final ScheduledExecutorService scheduler;
     private final ThreadPoolExecutor executor;
     private final long timeoutMillis;
@@ -24,7 +23,7 @@ public class TimedSupervisorTask extends TimerTask {
     private final AtomicLong delay;
     private final long maxDelay;
 
-    public TimedSupervisorTask( ScheduledExecutorService scheduler, ThreadPoolExecutor executor,
+    public TimedSupervisorTask(ScheduledExecutorService scheduler, ThreadPoolExecutor executor,
                                int timeout, TimeUnit timeUnit, int expBackOffBound, Runnable task) {
         this.scheduler = scheduler;
         this.executor = executor;
@@ -85,4 +84,5 @@ public class TimedSupervisorTask extends TimerTask {
             }
         }
     }
+}
 

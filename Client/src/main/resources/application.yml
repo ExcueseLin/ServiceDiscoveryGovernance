@@ -1,0 +1,12 @@
+server:
+  port: 9002
+
+
+sdg:
+  client:
+    fetch-registry: true
+    server-urls: http://127.0.0.1:9001/sdg/server
+    register-with-eureka: true
+spring:
+  application:
+    name: client-test

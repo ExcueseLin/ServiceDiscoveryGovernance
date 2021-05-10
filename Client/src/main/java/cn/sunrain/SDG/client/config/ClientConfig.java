@@ -2,9 +2,6 @@ package cn.sunrain.SDG.client.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static cn.sunrain.SDG.share.constants.SDGConstants.DEFAULT_PREFIX;
 
 /**
@@ -40,7 +37,7 @@ public class ClientConfig {
     private int cacheRefreshExecutorThreadPoolSize = 2;
 
     /** 是否在初始化过程中注册服务。 */
-    private boolean shouldEnforceRegistrationAtInit = false;
+    private boolean shouldEnforceRegistrationAtInit = true;
 
     /** 定时从Eureka Server拉取服务注册信息的间隔时间 */
     private int registryFetchIntervalSeconds = 30;
@@ -52,6 +49,13 @@ public class ClientConfig {
 
     /** 增量信息是否可以提供给客户端 。而应求助于获取完整的注册表信息 。 默认false */
     private boolean disableDelta =  false;
+
+    /** 应用实例开启关闭时下线开关。默认为 true  */
+    private boolean shouldUnregisterOnShutdown = true;
+
+
+    private String fetchRemoteRegionsRegistry;
+
 
     private String serverUrls;
 
@@ -137,6 +141,24 @@ public class ClientConfig {
     }
     public void setDisableDelta(boolean disableDelta) {
         this.disableDelta = disableDelta;
+    }
+
+    public boolean shouldUnregisterOnShutdown() {
+        return this.shouldUnregisterOnShutdown;
+    }
+    public boolean isShouldUnregisterOnShutdown() {
+        return shouldUnregisterOnShutdown;
+    }
+    public void setShouldUnregisterOnShutdown(boolean shouldUnregisterOnShutdown) {
+        this.shouldUnregisterOnShutdown = shouldUnregisterOnShutdown;
+    }
+
+
+    public String getFetchRemoteRegionsRegistry() {
+        return fetchRemoteRegionsRegistry;
+    }
+    public void setFetchRemoteRegionsRegistry(String fetchRemoteRegionsRegistry) {
+        this.fetchRemoteRegionsRegistry = fetchRemoteRegionsRegistry;
     }
 
 }

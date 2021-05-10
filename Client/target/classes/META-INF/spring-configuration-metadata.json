@@ -1,0 +1,148 @@
+{
+  "groups": [
+    {
+      "name": "sdg.client",
+      "type": "cn.sunrain.SDG.client.config.ClientConfig",
+      "sourceType": "cn.sunrain.SDG.client.config.ClientConfig"
+    },
+    {
+      "name": "sdg.instance",
+      "type": "cn.sunrain.SDG.client.config.InstanceConfigBean",
+      "sourceType": "cn.sunrain.SDG.client.config.InstanceConfigBean"
+    }
+  ],
+  "properties": [
+    {
+      "name": "sdg.client.cache-refresh-executor-exponential-back-off-bound",
+      "type": "java.lang.Integer",
+      "description": "服务拉取任务（cacheRefreshExecutord）再次执行的最大延迟倍数。默认最大延迟倍数为10",
+      "sourceType": "cn.sunrain.SDG.client.config.ClientConfig",
+      "defaultValue": 10
+    },
+    {
+      "name": "sdg.client.cache-refresh-executor-thread-pool-size",
+      "type": "java.lang.Integer",
+      "description": "执行程序缓存刷新线程池的大小，默认为2",
+      "sourceType": "cn.sunrain.SDG.client.config.ClientConfig",
+      "defaultValue": 2
+    },
+    {
+      "name": "sdg.client.disable-delta",
+      "type": "java.lang.Boolean",
+      "description": "增量信息是否可以提供给客户端 。而应求助于获取完整的注册表信息 。 默认false",
+      "sourceType": "cn.sunrain.SDG.client.config.ClientConfig",
+      "defaultValue": false
+    },
+    {
+      "name": "sdg.client.fetch-registry",
+      "type": "java.lang.Boolean",
+      "description": "此客户端是否获取eureka服务器注册表上的注册信息，默认为true",
+      "sourceType": "cn.sunrain.SDG.client.config.ClientConfig",
+      "defaultValue": true
+    },
+    {
+      "name": "sdg.client.fetch-remote-regions-registry",
+      "type": "java.lang.String",
+      "sourceType": "cn.sunrain.SDG.client.config.ClientConfig"
+    },
+    {
+      "name": "sdg.client.heartbeat-executor-exponential-back-off-bound",
+      "type": "java.lang.Integer",
+      "description": "心跳执行器 (scheduler) 在续约过程中超时后的再次执行续约的最大延迟倍数。默认最大延迟倍数10",
+      "sourceType": "cn.sunrain.SDG.client.config.ClientConfig",
+      "defaultValue": 10
+    },
+    {
+      "name": "sdg.client.heartbeat-executor-thread-pool-size",
+      "type": "java.lang.Integer",
+      "description": "心跳执行程序线程池的大小 默认为2",
+      "sourceType": "cn.sunrain.SDG.client.config.ClientConfig",
+      "defaultValue": 2
+    },
+    {
+      "name": "sdg.client.register-with-eureka",
+      "type": "java.lang.Boolean",
+      "description": "实例是否在eureka服务器上注册自己的信息以供其他服务发现，默认为true",
+      "sourceType": "cn.sunrain.SDG.client.config.ClientConfig",
+      "defaultValue": true
+    },
+    {
+      "name": "sdg.client.registry-fetch-interval-seconds",
+      "type": "java.lang.Integer",
+      "description": "定时从Eureka Server拉取服务注册信息的间隔时间",
+      "sourceType": "cn.sunrain.SDG.client.config.ClientConfig",
+      "defaultValue": 30
+    },
+    {
+      "name": "sdg.client.server-urls",
+      "type": "java.lang.String",
+      "sourceType": "cn.sunrain.SDG.client.config.ClientConfig"
+    },
+    {
+      "name": "sdg.client.should-enforce-registration-at-init",
+      "type": "java.lang.Boolean",
+      "description": "是否在初始化过程中注册服务。",
+      "sourceType": "cn.sunrain.SDG.client.config.ClientConfig",
+      "defaultValue": true
+    },
+    {
+      "name": "sdg.client.should-unregister-on-shutdown",
+      "type": "java.lang.Boolean",
+      "description": "应用实例开启关闭时下线开关。默认为 true",
+      "sourceType": "cn.sunrain.SDG.client.config.ClientConfig",
+      "defaultValue": true
+    },
+    {
+      "name": "sdg.instance.appname",
+      "type": "java.lang.String",
+      "sourceType": "cn.sunrain.SDG.client.config.InstanceConfigBean",
+      "defaultValue": "unknown"
+    },
+    {
+      "name": "sdg.instance.environment",
+      "type": "org.springframework.core.env.Environment",
+      "sourceType": "cn.sunrain.SDG.client.config.InstanceConfigBean"
+    },
+    {
+      "name": "sdg.instance.initial-status",
+      "type": "cn.sunrain.SDG.share.enums.InstanceStatus",
+      "sourceType": "cn.sunrain.SDG.client.config.InstanceConfigBean"
+    },
+    {
+      "name": "sdg.instance.instance-id",
+      "type": "java.lang.String",
+      "sourceType": "cn.sunrain.SDG.client.config.InstanceConfigBean"
+    },
+    {
+      "name": "sdg.instance.ip-address",
+      "type": "java.lang.String",
+      "sourceType": "cn.sunrain.SDG.client.config.InstanceConfigBean"
+    },
+    {
+      "name": "sdg.instance.lease-expiration-duration-in-seconds",
+      "type": "java.lang.Integer",
+      "description": "服务器在接收到实例的最后一次发出的心跳后，需要等待多久才可以将此实例删除，默认为90秒",
+      "sourceType": "cn.sunrain.SDG.client.config.InstanceConfigBean",
+      "defaultValue": 90
+    },
+    {
+      "name": "sdg.instance.lease-renewal-interval-in-seconds",
+      "type": "java.lang.Integer",
+      "description": "客户需要多长时间发送心跳给eureka服务器，表明它仍然活着,默认为30 秒",
+      "sourceType": "cn.sunrain.SDG.client.config.InstanceConfigBean",
+      "defaultValue": 30
+    },
+    {
+      "name": "sdg.instance.metadata-map",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "sourceType": "cn.sunrain.SDG.client.config.InstanceConfigBean"
+    },
+    {
+      "name": "sdg.instance.port",
+      "type": "java.lang.Integer",
+      "sourceType": "cn.sunrain.SDG.client.config.InstanceConfigBean",
+      "defaultValue": 80
+    }
+  ],
+  "hints": []
+}

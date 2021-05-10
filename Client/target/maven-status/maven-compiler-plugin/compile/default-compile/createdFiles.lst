@@ -1,0 +1,17 @@
+cn\sunrain\SDG\client\config\ClientAutoConfiguration.class
+cn\sunrain\SDG\client\discovery\DiscoveryClient$1.class
+cn\sunrain\SDG\client\discovery\DiscoveryClient$CacheRefreshThread.class
+cn\sunrain\SDG\client\config\InstanceConfigBean.class
+cn\sunrain\SDG\client\http\SdgHttpclient.class
+cn\sunrain\SDG\client\discovery\DiscoveryClient$HeartbeatThread.class
+cn\sunrain\SDG\client\discovery\Discovery.class
+cn\sunrain\SDG\client\discovery\DiscoveryClient.class
+cn\sunrain\SDG\client\discovery\TimedSupervisorTask.class
+META-INF\spring-configuration-metadata.json
+cn\sunrain\SDG\client\http\SDGHttpResponse$1.class
+cn\sunrain\SDG\client\http\SDGHttpException.class
+cn\sunrain\SDG\client\config\ClientConfig.class
+cn\sunrain\SDG\client\http\SDGHttpResponse.class
+cn\sunrain\SDG\client\ClientStart.class
+cn\sunrain\SDG\client\http\RestTemplateSdgHttpClient.class
+cn\sunrain\SDG\client\http\SDGHttpResponse$SDGHttpResponseBuilder.class

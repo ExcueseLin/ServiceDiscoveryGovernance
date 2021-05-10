@@ -50,13 +50,13 @@ public class InstanceInfoResource {
 
     @PutMapping()
     public Response renewLease(
-            @RequestHeader(HttpNode.HEADER_REPLICATION) String isReplication,
+        //    @RequestHeader(HttpNode.HEADER_REPLICATION) String isReplication,
             @RequestParam("status") String status,
             @RequestParam("lastDirtyTimestamp") String lastDirtyTimestamp,
             @RequestParam("appName") String appName,
             @RequestParam("id") String id) {
-        boolean isFromReplicaNode = "true".equals(isReplication);
-        boolean isSuccess = registry.renew(appName, id, isFromReplicaNode);
+       // boolean isFromReplicaNode = "true".equals(isReplication);
+        boolean isSuccess = registry.renew(appName, id, false);
 
         // Not found in the registry, immediately ask for a register
         if (!isSuccess) {
